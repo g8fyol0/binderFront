@@ -19,6 +19,12 @@
 # then created outlet
 
 -- creating a login page
+---- using axios package to make an api call
+--- cors error (if we are trying to make api call from x to y other domain ) -> CORS error is from browser for security reason
+-- install cors in backend as middle ware in app.js with config {origin and ceredentails}
+and while makeing api call from frontend pass {withcredentails: true}
+
+-- also axios can't set cookies for non https sites so we need to whitelist them set withCredientails : true
 
 -- component design
 

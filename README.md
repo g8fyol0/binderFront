@@ -33,6 +33,10 @@ install react-redux + toolkit --> configure store or create store -> add provide
 --- proivde this store to root of application <provider>
 -- now we can use store in all compoents
 
+---- if not logged in redirect ot logoin from any page using token check and error 401 from backend auth api
+
+--- logout - clear cookies
+
 -- component design
 
 body

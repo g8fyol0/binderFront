@@ -26,6 +26,13 @@ and while makeing api call from frontend pass {withcredentails: true}
 
 -- also axios can't set cookies for non https sites so we need to whitelist them set withCredientails : true
 
+--- install redux toolkit -- create store
+
+install react-redux + toolkit --> configure store or create store -> add provider to application -> then create a slice -> add reducer to store
+--> now to add data we useDespath hook we dispatch an action to add data in store
+--- proivde this store to root of application <provider>
+-- now we can use store in all compoents
+
 -- component design
 
 body

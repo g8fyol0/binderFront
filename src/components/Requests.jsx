@@ -41,7 +41,7 @@ const Requests = () => {
 
   if (!requests || requests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center mt-28 px-6 text-center">
+      <div className="flex flex-col items-center justify-center mt-28 px-6 text-center py-20">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="w-48 h-48 text-gray-400 mb-6"

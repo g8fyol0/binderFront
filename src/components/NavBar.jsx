@@ -26,7 +26,7 @@ const NavBar = () => {
   };
 
   return (
-    <div className="navbar bg-base-300">
+    <div className="navbar fixed top-0 left-0 z-50 w-full bg-base-300 shadow">
       <div className="flex-1">
         <Link to="/" className="btn btn-ghost text-xl">
           Binder❤️
@@ -56,7 +56,10 @@ const NavBar = () => {
                 </Link>
               </li>
               <li>
-                <a>Settings</a>
+                <Link to="/connections">See connections</Link>
+              </li>
+              <li>
+                <Link to="/requests">pending requests</Link>
               </li>
               <li>
                 <a onClick={handleLogout}>Logout</a>

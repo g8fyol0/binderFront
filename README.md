@@ -107,3 +107,8 @@ deployment
     --- now our backend at /api and forntend at ip/
 
     -- modify BASE_URL = /api
+
+    -- then git pull -> then agin npm build -> copy that to sudo scp -r dist/\* /var/www/html/
+
+-- g8fyolprojects.xyz (domain)
+-- chnaged nameserver to cloudflare's

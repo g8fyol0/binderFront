@@ -41,7 +41,13 @@ const Feed = () => {
   return (
     feed && (
       <div className="flex justify-center my-20">
-        <UserCard user={feed[0]} />
+        <div className="flex flex-wrap gap-6 justify-center">
+          {/* First card */}
+          {feed.length > 0 && <UserCard user={feed[0]} />}
+          
+          {/* Second card */}
+          {feed.length > 1 && <UserCard user={feed[1]} />}
+        </div>
       </div>
     )
   );

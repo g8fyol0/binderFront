@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../utils/connectionSlice";
+import { Link } from "react-router-dom";
 
 const Connections = () => {
   //getting connections from store
@@ -78,6 +79,10 @@ const Connections = () => {
                 {about || "No description available."}
               </p>
             </div>
+
+            <Link to={"/chat/" + _id}>
+              <button className="btn ml-28 my-6 btn-secondary">Chat</button>
+            </Link>
           </div>
         );
       })}

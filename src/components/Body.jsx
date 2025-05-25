@@ -37,9 +37,11 @@ const Body = () => {
   return (
     <div>
       <NavBar />
-      {/* any childern routes of body will render here  */}
-      <Outlet />
-      <Footer> </Footer>
+      <div className="pt-16 pb-16">
+        {/* any childern routes of body will render here  */}
+        <Outlet />
+        <Footer> </Footer>
+      </div>
     </div>
   );
 };

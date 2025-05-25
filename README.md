@@ -112,3 +112,5 @@ deployment
 
 -- g8fyolprojects.xyz (domain)
 -- chnaged nameserver to cloudflare's
+
+---- chat using webSocket (socket.io)

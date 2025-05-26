@@ -179,9 +179,14 @@ const EditProfile = ({ user }) => {
           </div>
         </div>
 
-        <UserCard
-          user={{ firstName, lastName, about, age, photoUrl, gender }}
-        />
+        <div className="flex flex-col items-center gap-2">
+          <div className="text-lg font-semibold text-gray-200 uppercase tracking-wide">
+            Your Card View
+          </div>
+          <UserCard
+            user={{ firstName, lastName, about, age, photoUrl, gender }}
+          />
+        </div>
       </div>
     </>
   );

@@ -62,16 +62,19 @@ const Login = () => {
           },
           { withCredentials: true }
         );
+        console.log(res.data);
       }
 
       // Clear error before navigation
       setError("");
 
       if (mode === "verify") {
-        dispatch(addUser(res.data));
+        const userData = res.data.data || res.data;
+        dispatch(addUser(userData));
         navigate("/profile"); // Changed back to /profile as requested
       } else if (mode === "login") {
-        dispatch(addUser(res.data));
+        const userData = res.data.data || res.data;
+        dispatch(addUser(userData));
         navigate("/");
       } else {
         dispatch(addUser(res.data.data));

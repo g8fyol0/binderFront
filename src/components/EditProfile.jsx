@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserCard from "./UserCard";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
@@ -14,6 +14,17 @@ const EditProfile = ({ user }) => {
   const [gender, setGender] = useState(user.gender || "");
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.firstName || "");
+      setLastName(user.lastName || "");
+      setPhotoUrl(user.photoUrl || "");
+      setAge(user.age || "");
+      setAbout(user.about || "");
+      setGender(user.gender || "");
+    }
+  }, [user]);
 
   const dispatch = useDispatch();
 
@@ -167,6 +178,7 @@ const EditProfile = ({ user }) => {
             </div>
           </div>
         </div>
+
         <UserCard
           user={{ firstName, lastName, about, age, photoUrl, gender }}
         />

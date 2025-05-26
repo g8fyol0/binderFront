@@ -45,10 +45,10 @@ const Feed = () => {
 
   // Check if we need to load more users
   useEffect(() => {
-    if (!isSearchMode && feed && feed.length < 5 && !isLoading) {
+    if (!isSearchMode && feed && feed.length < 5) {
       getFeed(page + 1, true);
     }
-  }, [feed, isSearchMode, isLoading]);
+  }, [feed, isSearchMode]);
 
   // Initial feed load
   useEffect(() => {
@@ -79,7 +79,7 @@ const Feed = () => {
 
   const handleConnectionAction = async (userId, actionType) => {
     try {
-      await axios.post(
+      const res = await axios.post(
         `${BASE_URL}/request/send/${actionType}/${userId}`,
         {},
         { withCredentials: true }
@@ -93,12 +93,6 @@ const Feed = () => {
       }
       
       setActionMessage(""); // Clear any previous error messages
-      
-      // Check if we need to load more users after removing one
-      if (!isSearchMode && feed && feed.length <= 5) {
-        getFeed(page + 1, true);
-      }
-      
     } catch (err) {
       console.error("Action error", err);
       // Display error message from backend
@@ -110,11 +104,6 @@ const Feed = () => {
           setSearchResults(prev => prev.filter(u => u._id !== userId));
         } else if (feed) {
           dispatch(addFeed(feed.filter(u => u._id !== userId)));
-        }
-        
-        // Check if we need to load more users after removing one
-        if (!isSearchMode && feed && feed.length <= 5) {
-          getFeed(page + 1, true);
         }
         
         // Clear the message after 3 seconds
@@ -131,7 +120,7 @@ const Feed = () => {
     setIsSearchMode(false);
     setActionMessage("");
     // Ensure we have enough cards in the feed
-    if (!feed || feed.length < 10) {
+    if (feed && feed.length < 10) {
       getFeed(1, false);
     }
   };
@@ -211,18 +200,31 @@ const Feed = () => {
           )}
         </div>
       ) : (
-        <div className="flex flex-wrap justify-center gap-6 p-4">
-          {usersToDisplay.map((user) => (
-            <UserCard 
-              key={user._id} 
-              user={user} 
-              onAction={handleConnectionAction}
-            />
-          ))}
+        <div className="flex flex-col items-center my-10">
+          <div className="flex flex-wrap gap-6 justify-center">
+            {usersToDisplay?.map((user, i) => (
+              <UserCard
+                key={user._id || i}
+                user={user}
+                onInterested={() => handleConnectionAction(user._id, "interested")}
+                onIgnore={() => handleConnectionAction(user._id, "ignored")}
+              />
+            ))}
+          </div>
+          
           {isLoading && (
-            <div className="w-full text-center py-4">
-              <span className="loading loading-dots loading-md"></span>
+            <div className="flex justify-center mt-8">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
             </div>
+          )}
+          
+          {!isSearchMode && !isLoading && feed.length >= 5 && (
+            <button 
+              className="btn btn-outline mt-8"
+              onClick={() => getFeed(page + 1, true)}
+            >
+              Load More
+            </button>
           )}
         </div>
       )}

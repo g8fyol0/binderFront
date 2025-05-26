@@ -29,7 +29,7 @@ const NavBar = () => {
     <div className="navbar fixed top-0 left-0 z-50 w-full bg-base-300 shadow">
       <div className="flex-1">
         <Link to="/" className="btn btn-ghost text-xl">
-          Binder❤️
+          Binder
         </Link>
       </div>
       {user && (

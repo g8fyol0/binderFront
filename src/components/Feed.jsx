@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
-import { useDispatch, useSelector } from "react-redux";
-import { addFeed } from "../utils/feedSlice";
 import UserCard from "./UserCard";
 
 const Feed = () => {
-  const feed = useSelector((store) => store.feed);
-  const dispatch = useDispatch();
+  const [feed, setFeed] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [actionMessage, setActionMessage] = useState("");
@@ -15,27 +12,33 @@ const Feed = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  // Get initial feed or load more users
   const getFeed = async (pageNum = 1, append = false) => {
-    if (feed && pageNum === 1 && !append) return;
-    
+    if (!hasMore && append) return;
+
     setIsLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/feed?page=${pageNum}&limit=10`, {
         withCredentials: true,
       });
-      
-      if (append && feed) {
-        // Append new users to existing feed
-        const newUsers = res?.data?.data || [];
-        dispatch(addFeed([...feed, ...newUsers]));
+
+      const newUsers = res?.data?.data || [];
+
+      if (newUsers.length === 0) {
+        setHasMore(false);
       } else {
-        // Replace feed entirely
-        dispatch(addFeed(res?.data?.data || []));
+        if (append) {
+          const allUsers = [...feed, ...newUsers];
+          const uniqueUsers = [
+            ...new Map(allUsers.map((u) => [u._id, u])).values(),
+          ];
+          setFeed(uniqueUsers);
+        } else {
+          setFeed(newUsers);
+        }
+        setPage(pageNum);
       }
-      
-      setPage(pageNum);
     } catch (err) {
       console.error("Error fetching feed:", err);
     } finally {
@@ -43,14 +46,6 @@ const Feed = () => {
     }
   };
 
-  // Check if we need to load more users
-  useEffect(() => {
-    if (!isSearchMode && feed && feed.length < 5 && !isLoading) {
-      getFeed(page + 1, true);
-    }
-  }, [feed, isSearchMode, isLoading]);
-
-  // Initial feed load
   useEffect(() => {
     getFeed();
   }, []);
@@ -83,42 +78,21 @@ const Feed = () => {
         {},
         { withCredentials: true }
       );
-      
-      // Remove user from both search results and feed
-      setSearchResults(prev => prev.filter(u => u._id !== userId));
-      if (feed) {
-        dispatch(addFeed(feed.filter(u => u._id !== userId)));
-      }
-      
-      setActionMessage(""); // Clear any previous error messages
-      
-      // Check if we need to load more users after removing one
-      if (!isSearchMode && feed && feed.length <= 5) {
-        getFeed(page + 1, true);
-      }
-      
+
+      setFeed((prev) => prev.filter((u) => u._id !== userId));
+      setSearchResults((prev) => prev.filter((u) => u._id !== userId));
+      setActionMessage("");
     } catch (err) {
+      const msg = err.response?.data?.message;
       console.error("Action error", err);
-      // Display error message from backend
-      if (err.response?.data?.message === "connection request already exists!!") {
-        setActionMessage("You've already acted on this profile");
-        
-        // Also remove the card since it's already been acted upon
-        setSearchResults(prev => prev.filter(u => u._id !== userId));
-        if (feed) {
-          dispatch(addFeed(feed.filter(u => u._id !== userId)));
-        }
-        
-        // Check if we need to load more users after removing one
-        if (!isSearchMode && feed && feed.length <= 5) {
-          getFeed(page + 1, true);
-        }
-        
-        // Clear the message after 3 seconds
-        setTimeout(() => setActionMessage(""), 3000);
-      } else {
-        setActionMessage(err.response?.data?.message || "An error occurred");
+      setActionMessage(msg || "An error occurred");
+
+      if (msg === "connection request already exists!!") {
+        setFeed((prev) => prev.filter((u) => u._id !== userId));
+        setSearchResults((prev) => prev.filter((u) => u._id !== userId));
       }
+
+      setTimeout(() => setActionMessage(""), 3000);
     }
   };
 
@@ -127,15 +101,13 @@ const Feed = () => {
     setSearchResults([]);
     setIsSearchMode(false);
     setActionMessage("");
-    // Ensure we have enough cards in the feed
-    if (!feed || feed.length < 10) {
-      getFeed(1, false);
-    }
+  };
+
+  const loadMore = () => {
+    getFeed(page + 1, true);
   };
 
   const usersToDisplay = isSearchMode ? searchResults : feed;
-
-  if (!feed) return null;
 
   return (
     <>
@@ -157,10 +129,11 @@ const Feed = () => {
             {isSearching ? "Searching..." : "Search"}
           </button>
         </div>
-        
-        {/* Back to Feed button - always visible but highlighted when in search mode */}
-        <button 
-          className={`btn ${isSearchMode ? 'btn-secondary' : 'btn-outline'} btn-sm mt-1 mb-4`}
+
+        <button
+          className={`btn ${
+            isSearchMode ? "btn-secondary" : "btn-outline"
+          } btn-sm mt-1 mb-4`}
           onClick={resetSearch}
         >
           Back to Feed
@@ -180,25 +153,40 @@ const Feed = () => {
           <h2 className="text-2xl font-semibold mb-2">
             {isSearchMode ? "No users found" : "No users available"}
           </h2>
-          {isSearchMode && (
-            <p className="text-gray-500">Try searching with a different name.</p>
-          )}
-          {!isSearchMode && (
-            <p className="text-gray-500">Check back later for new connections.</p>
+          {isSearchMode ? (
+            <p className="text-gray-500">
+              Try searching with a different name.
+            </p>
+          ) : (
+            <p className="text-gray-500">
+              Check back later for new connections.
+            </p>
           )}
         </div>
       ) : (
-        <div className="flex flex-wrap justify-center gap-6 p-4">
-          {usersToDisplay.map((user) => (
-            <UserCard 
-              key={user._id} 
-              user={user} 
-              onAction={handleConnectionAction}
-            />
-          ))}
+        <div className="flex flex-col items-center justify-center gap-6 p-4">
+          <div className="flex flex-wrap justify-center gap-6 w-full">
+            {usersToDisplay.map((user) => (
+              <UserCard
+                key={user._id}
+                user={user}
+                onAction={handleConnectionAction}
+              />
+            ))}
+          </div>
           {isLoading && (
-            <div className="w-full text-center py-4">
+            <div className="text-center py-4">
               <span className="loading loading-dots loading-md"></span>
+            </div>
+          )}
+          {!isSearchMode && hasMore && !isLoading && (
+            <button className="btn btn-outline mt-4" onClick={loadMore}>
+              Load More
+            </button>
+          )}
+          {!hasMore && !isSearchMode && (
+            <div className="text-gray-500 text-sm mt-2">
+              No more users to load.
             </div>
           )}
         </div>
